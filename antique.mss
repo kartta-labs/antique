@@ -1,7 +1,7 @@
 /* Set up map and palette */
 
 @ocean: #AECAD0;
-#ocean[zoom>=9] { polygon-fill: @ocean; }
+#ocean { polygon-fill: @ocean; }
 
 Map { 
 	buffer-size: 0;

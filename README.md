@@ -48,15 +48,10 @@ Adding more feature types will require adapting the Lua import script, so that t
 
 Fonts are Balthazar and Josefin Sans, both as included in the Google Fonts collection, and licensed under the Open Font License.
 
-## Authors
-
-Richard Fairhurst (richard@systemeD.net), August 2019
-Tim Waters, Sept 2019
 
 ## License
 
-Copyright 2019 Richard Fairhurst
-Modifications Copyright 2019 Tim Waters
+Copyright (c) 2019-2020 Google LLC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

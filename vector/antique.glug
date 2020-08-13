@@ -1,0 +1,163 @@
+# Copyright 2008-2020 Tim Waters
+# Copyright 2020 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+	# Colours
+	
+	water			= 0xAECAD0
+	river     = 0x9bd2f8
+	landuse_border	= 0x777777
+	state_border   =  0xAEADA9
+	roads_casing	= 0x444444
+	roads_centre 	= 0xE8E0C8
+	roads_name		= roads_casing
+	roads_minor		= 0xAAAAAA
+	roads_halo		= roads_centre
+	
+	buildings_default	= 0xD0C0A8
+	buildings_shop		= 0xD9CB48
+	buildings_church	= 0x7EA0A9
+	buildings_school	= 0xD67888
+	buildings_factory	= 0xB7AF9C
+	buildings_outline	= 0xAAAAAA
+	buildings_name		= roads_name
+	buildings_halo      = roads_halo
+	
+	# Config
+	# run server with e.g. python -m SimpleHTTPServer 8000
+	
+	version 8
+	sprite "https://storage.googleapis.com/morning-chess-concert/antique_assets/sprites"
+	glyphs "https://storage.googleapis.com/morning-chess-concert/antique_assets/vector_fonts/{fontstack}/{range}.pbf"
+
+	source :antique, type: "vector", :url=>"https://tegola-mci-dev.historicmapstack.org/capabilities/antique.json", default: true
+
+	# Layers
+	
+	layer(:background) {
+		background_pattern "background"
+
+	}
+	
+	layer(:ocean) {
+		fill_color water
+	}
+
+
+layer(:country_lines) {
+		line_color landuse_border
+		line_width stops: [[14,1],[21,3]]
+}
+
+layer(:state_lines) {
+		line_color state_border
+		line_width stops: [[14,1],[21,3]]
+}
+
+layer(:lakes) {
+	fill_color water
+}
+layer(:global_rivers) {
+	line_color river
+}
+
+	layer(:water_line) {
+		line_color water
+		line_width stops: [[14,1],[21,3]]
+	}
+
+	layer(:landuse) {
+		filter type.in('playground','park')
+		fill_pattern "stripes"
+		fill_opacity 0.3
+		fill_outline_color landuse_border
+		fill_outline_width 1
+	}
+	
+	layer(:minor_roads, zoom: 16..20) {
+		line_color roads_minor
+		line_width 2
+		line_dasharray [3,3]
+	}
+	
+	layer(:roads_casing_major, source_layer: :roads, zoom: 14..21) {
+		filter type.in('motorway','trunk','primary','secondary')
+		line_color roads_casing
+		line_width stops: [[14,6],[19,29]]
+	}
+	layer(:roads_casing_mid, source_layer: :roads, zoom: 14..21) {
+		filter type.not_in('motorway','trunk','primary','secondary')
+		line_color roads_casing
+		line_width stops: [[14,4],[19,24]]
+	}
+	layer(:roads_centre_major, source_layer: :roads, zoom: 14..21) {
+		filter type.in('motorway','trunk','primary','secondary')
+		line_color roads_centre
+		line_width stops: [[14,5],[19,28]]
+	}
+	layer(:roads_centre_mid, source_layer: :roads, zoom: 14..21) {
+		filter type.not_in('motorway','trunk','primary','secondary')
+		line_color roads_centre
+		line_width stops: [[14,3],[19,23]]
+	}
+
+	layer(:buildings) {
+		fill_color buildings_default
+		fill_opacity 0.7
+		on(type.in('shop','bank','marketplace','gallery','hotel')) { fill_color buildings_shop }
+		on(type.in('church','place_of_worship')) { fill_color buildings_church }
+		on(type.in('school','library')) { fill_color buildings_school }
+		on(type.in('factory','saw_mill')) { fill_color buildings_factory }
+	}
+	layer(:buildings_outline, source_layer: :buildings, zoom: 15..21) {
+		line_color buildings_outline
+		line_width stops: [[15,0.5],[21,1.5]]
+	}
+	
+	layer(:building_names, source_layer: :buildings, zoom: 16..21) {
+		text_halo_color buildings_halo
+		text_halo_width 1
+		text_field "{name}"
+		text_font ["Josefin Sans Italic"]
+		on (type.in('shop','bank','marketplace','gallery','hotel','church','place_of_worship','school','library')) {
+			text_font ["Josefin Sans Semi Bold Italic"]
+		}
+		text_size 14
+		text_max_width 6
+		text_color buildings_name
+	}
+
+	layer(:road_names, zoom: 14..21) {
+		text_font [ "PT Sans Regular" ]
+		symbol_placement 'line-center'
+		text_field "{name}"
+		text_letter_spacing 0.2
+		text_offset [0,0]
+		text_color roads_name
+		text_halo_color roads_halo
+		text_halo_width 2
+		text_size stops: [[14,10],[19,22]]
+	}
+		
+	layer(:places) {
+		text_field "{name}"
+		text_font [ "Josefin Sans Regular" ]
+		text_color roads_name
+		text_size 18
+		text_max_width 10
+		text_letter_spacing 0.2
+		text_line_height 1.2
+		text_halo_color roads_halo
+		text_halo_width 1
+	}

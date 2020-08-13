@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title>Antique map style</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='/mbgl/mapbox-gl.js?v=1.10.1'></script>
+    <link href='/mbgl/mapbox-gl.css' rel='stylesheet' />
+	<!-- fetch latest versions from
+	    https://api.tiles.mapbox.com/mapbox-gl-js/v0.50.0/mapbox-gl.js
+        https://api.tiles.mapbox.com/mapbox-gl-js/v0.50.0/mapbox-gl.css
+        
+        style change stuff from 
+        https://github.com/mapbox/mapbox-gl-js/blob/master/debug/hillshade.html 
+	-->
+
+    <style>
+        body { margin:0; padding:0; }
+        #map { position:absolute; top:0; bottom:0; width:100%; }
+		#refresh { position: absolute; top: 15px; left: 15px; background-color: white; padding: 5px; 
+			border: 1px solid black; font-family: Avenir; cursor: pointer; }
+
+        #menu {
+        background: #fff;
+        position: absolute;
+        z-index: 1;
+        top: 10px;
+        right: 50px;
+        border-radius: 3px;
+        width: 120px;
+        border: 1px solid rgba(0, 0, 0, 0.4);
+        font-family: 'Open Sans', sans-serif;
+        }
+        
+        #menu a {
+        font-size: 13px;
+        color: #404040;
+        display: block;
+        margin: 0;
+        padding: 0;
+        padding: 10px;
+        text-decoration: none;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+        text-align: center;
+        }
+        
+        #menu a:last-child {
+        border: none;
+        }
+        
+        #menu a:hover {
+        background-color: #f8f8f8;
+        color: #404040;
+        }
+        
+        #menu a.active {
+        background-color: #3887be;
+        color: #ffffff;
+        }
+        
+        #menu a.active:hover {
+        background: #3074a4;
+        }
+    </style>
+</head>
+<body>
+ 
+<nav id="menu"></nav>
+<div id='map'></div>
+
+<script>
+var styleURL = 'http://'+window.location.host+'/antique_style_local.json';
+var xrayStyleURL = 'http://'+window.location.host+'/xray_style.json';
+var map = new mapboxgl.Map({
+    container: 'map', // container id
+    style: styleURL, // stylesheet location
+    center: [-73.99,40.74], // starting position [lng, lat]lng: -73.99931073493184, lat: 40.74364982242477
+    zoom: 14,
+    minZoom: 0,
+    hash: true // starting zoom
+});
+map.addControl(new mapboxgl.NavigationControl());
+
+// To show red tile boundary lines, uncomment:
+//map.showTileBoundaries=true;
+
+// To debug data on mouseover, uncomment:
+/*map.addControl(new MapboxInspect({
+  showInspectButton: false,
+  showMapPopup: true
+}));*/
+
+function reload() { map.setStyle(styleURL); }
+
+var toggleableLayerIds = ['antique', 'xray'];
+
+for (var i = 0; i < toggleableLayerIds.length; i++) {
+var id = toggleableLayerIds[i];
+ 
+var link = document.createElement('a');
+link.href = '#';
+link.className = 'active';
+link.textContent = id;
+ 
+link.onclick = function(e) {
+var clickedLayer = this.textContent;
+e.preventDefault();
+e.stopPropagation();
+
+var styleJson = map.getStyle();
+var active = styleJson.name
+if (active !== clickedLayer ){
+    if (active == "xray") {
+        map.setStyle(styleURL);
+    } else {
+        map.setStyle(xrayStyleURL);
+    }
+
+}
+
+
+
+ 
+
+
+};
+ 
+var layers = document.getElementById('menu');
+layers.appendChild(link);
+}
+
+
+</script>
+
+</body>
+</html>

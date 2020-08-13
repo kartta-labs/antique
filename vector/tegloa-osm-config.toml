@@ -1,0 +1,126 @@
+# Copyright 2008-2020 Tim Waters
+# Copyright 2020 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+
+## snippet for a tegola config for use just with osm data
+
+[[providers]]
+name = "osm"     # provider name is referenced from map layers
+type = "postgis"        # the type of data provider. currently only supports postgis
+host = "${DB_HOST}"       # postgis database host
+port = "${DB_PORT}"             # postgis database port
+database = "osm"       # postgis database name
+user = "${DB_USER}"        # postgis database user
+password = "${DB_PASSWORD}"           # postgis database password
+srid = 3857             # The default srid for this provider. If not provided it will be WebMercator (3857)
+
+  [[providers.layers]]
+  name = "water"
+  geometry_fieldname = "geom"
+  geometry_type = "polygon"
+  id_fieldname = "osm_id"
+  sql = "SELECT osm_id, ST_AsBinary(way) AS geom FROM planet_osm_polygon WHERE (water IN ('river','canal','lake','water') OR waterway IN ('riverbank','canal','lake','pond') OR \"natural\"='water') AND way && !BBOX!"
+
+  [[providers.layers]]
+  name = "water_line"
+  geometry_fieldname = "geom"
+  geometry_type = "linestring"
+  id_fieldname = "osm_id"
+  sql = "SELECT osm_id, ST_AsBinary(way) AS geom FROM planet_osm_line WHERE waterway IN ('river','canal','stream') AND way && !BBOX!"
+
+  [[providers.layers]]
+  name = "landuse"
+  geometry_fieldname = "geom"
+  id_fieldname = "osm_id"
+  sql = "SELECT osm_id, ST_AsBinary(way) AS geom, name, COALESCE(landuse,leisure) AS type FROM planet_osm_polygon WHERE (landuse IS NOT NULL OR leisure IS NOT NULL) AND way && !BBOX!"
+
+  [[providers.layers]]
+  name = "minor_roads"
+  geometry_fieldname = "geom"
+  id_fieldname = "osm_id"
+  sql = "SELECT osm_id, ST_AsBinary(way) AS geom, UPPER(name) AS name, highway AS type FROM planet_osm_line WHERE highway IN ('footway','service') AND way && !BBOX!"
+
+  [[providers.layers]]
+  name = "roads"
+  geometry_fieldname = "geom"
+  id_fieldname = "osm_id"
+  sql = "SELECT osm_id, ST_AsBinary(way) AS geom, UPPER(name) AS name, highway AS type FROM planet_osm_line WHERE highway IS NOT NULL AND highway NOT IN ('footway','service') AND way && !BBOX!"
+
+  [[providers.layers]]
+  name = "buildings"
+  geometry_fieldname = "geom"
+  id_fieldname = "osm_id"
+  sql = "SELECT osm_id, ST_AsBinary(way) AS geom, name, COALESCE(amenity,tourism,building) AS type, '' AS subtype FROM planet_osm_polygon WHERE building IS NOT NULL AND way && !BBOX!"
+  # note that we should have a subtype here
+
+  [[providers.layers]]
+  name = "road_names"
+  geometry_fieldname = "geom"
+  id_fieldname = "osm_id"
+  sql = "SELECT osm_id, ST_AsBinary(way) AS geom, UPPER(name) AS name FROM planet_osm_line WHERE highway IS NOT NULL AND name IS NOT NULL AND way && !BBOX!"
+
+  [[providers.layers]]
+  name = "places"
+  geometry_fieldname = "geom"
+  id_fieldname = "osm_id"
+  sql = "SELECT osm_id, ST_AsBinary(way) AS geom, UPPER(name) AS name, place AS type FROM planet_osm_point WHERE place IS NOT NULL AND name IS NOT NULL AND way && !BBOX!"
+
+
+[[maps]]
+name = "osm"
+center = [0.0,51.5,14.0]
+attribution = "© OpenStreetMap contributors"
+
+
+  [[maps.layers]]
+  provider_layer = "osm.water"
+  min_zoom = 12
+  max_zoom = 20
+
+  [[maps.layers]]
+  provider_layer = "osm.water_line"
+  min_zoom = 12
+  max_zoom = 20
+
+  [[maps.layers]]
+  provider_layer = "osm.minor_roads"
+  min_zoom = 12
+  max_zoom = 20
+
+  [[maps.layers]]
+  provider_layer = "osm.landuse"
+  min_zoom = 12
+  max_zoom = 20
+
+  [[maps.layers]]
+  provider_layer = "osm.roads"
+  min_zoom = 12
+  max_zoom = 20
+
+  [[maps.layers]]
+  provider_layer = "osm.buildings"
+  min_zoom = 12
+  max_zoom = 20
+
+  [[maps.layers]]
+  provider_layer = "osm.road_names"
+  min_zoom = 12
+  max_zoom = 20
+
+  [[maps.layers]]
+  provider_layer = "osm.places"
+  min_zoom = 12
+  max_zoom = 20

@@ -1,0 +1,267 @@
+# Copyright 2008-2020 Tim Waters
+# Copyright 2020 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+[webserver]
+port = ":8080"
+
+[cache]
+type="file"
+basepath="/tmp/tegolacache" # e.g. ip:host 
+
+
+# register data providers
+[[providers]]
+name = "antique"        # provider name is referenced from map layers
+type = "postgis"        # the type of data provider. currently only supports postgis
+host = "localhost"      # postgis database host
+port = 5432             # postgis database port
+database = "antique"    # postgis database name
+user = "tim"            # postgis database user
+password = ""           # postgis database password
+srid = 3857             # The default srid for this provider. If not provided it will be WebMercator (3857)
+
+  [[providers.layers]]
+  name = "water"
+  geometry_fieldname = "geom"
+  geometry_type = "polygon"
+  id_fieldname = "osm_id"
+  sql = "SELECT osm_id, name, start_date, end_date, water, waterway, ST_AsBinary(way) AS geom FROM planet_osm_polygon WHERE (water IN ('river','canal','lake','water') OR waterway IN ('riverbank','canal','lake','pond') OR \"natural\"='water') AND way && !BBOX!"
+
+  [[providers.layers]]
+  name = "water_line"
+  geometry_fieldname = "geom"
+  geometry_type = "linestring"
+  id_fieldname = "osm_id"
+  sql = "SELECT osm_id, name, start_date, end_date, waterway, ST_AsBinary(way) AS geom FROM planet_osm_line WHERE waterway IN ('river','canal','stream') AND way && !BBOX!"
+
+  [[providers.layers]]
+  name = "landuse"
+  geometry_fieldname = "geom"
+  id_fieldname = "osm_id"
+  sql = "SELECT osm_id, name, start_date, end_date, landuse, leisure, ST_AsBinary(way) AS geom, name, COALESCE(landuse,leisure) AS type FROM planet_osm_polygon WHERE (landuse IS NOT NULL OR leisure IS NOT NULL) AND way && !BBOX!"
+
+  [[providers.layers]]
+  name = "minor_roads"
+  geometry_fieldname = "geom"
+  id_fieldname = "osm_id"
+  sql = "SELECT osm_id, start_date, end_date, highway, ST_AsBinary(way) AS geom, UPPER(name) AS name, highway AS type FROM planet_osm_line WHERE highway IN ('footway','service') AND way && !BBOX!"
+
+  [[providers.layers]]
+  name = "roads"
+  geometry_fieldname = "geom"
+  id_fieldname = "osm_id"
+  sql = "SELECT osm_id, start_date, end_date,  highway, ST_AsBinary(way) AS geom, UPPER(name) AS name, highway AS type FROM planet_osm_line WHERE highway IS NOT NULL AND highway NOT IN ('footway','service') AND way && !BBOX!"
+
+  [[providers.layers]]
+  name = "buildings"
+  geometry_fieldname = "geom"
+  id_fieldname = "osm_id"
+  sql = "SELECT osm_id, start_date, end_date, amenity, tourism, building, \"building:levels\",  tags->'addr:street' AS street, \"addr:housename\" as housename, \"addr:housenumber\" as housenumber,  ST_AsBinary(way) AS geom, name, COALESCE(amenity,tourism,building) AS type, '' AS subtype FROM planet_osm_polygon WHERE building IS NOT NULL AND way && !BBOX!"
+  # note that we should have a subtype here
+
+  [[providers.layers]]
+  name = "road_names"
+  geometry_fieldname = "geom"
+  id_fieldname = "osm_id"
+  sql = "SELECT osm_id, start_date, end_date, highway, ST_AsBinary(way) AS geom, UPPER(name) AS name FROM planet_osm_line WHERE highway IS NOT NULL AND name IS NOT NULL AND way && !BBOX!"
+
+  [[providers.layers]]
+  name = "places"
+  geometry_fieldname = "geom"
+  id_fieldname = "osm_id"
+  sql = "SELECT osm_id, start_date, end_date, place, ST_AsBinary(way) AS geom, UPPER(name) AS name, place AS type FROM planet_osm_point WHERE place IS NOT NULL AND name IS NOT NULL AND way && !BBOX!"
+
+
+	#ne water, ocean and lakes
+	[[providers.layers]]
+	name = "ne_50m_water"
+	geometry_fieldname = "geom"
+	id_fieldname = "ogc_fid"
+	sql = "SELECT ST_AsBinary(geom) AS geom, ogc_fid FROM  ne_50m_ocean_gridded WHERE min_zoom <= !ZOOM! AND geom && !BBOX! UNION ALL SELECT ST_AsBinary(geom) AS geom, ogc_fid FROM ne_50m_lakes WHERE min_zoom <= !ZOOM! AND geom && !BBOX!"
+
+	[[providers.layers]]
+	name = "ne_10m_water"
+	geometry_fieldname = "geom"
+	id_fieldname = "ogc_fid"
+	geometry_type = "multipolygon"
+	sql = "SELECT ST_AsBinary(geom) AS geom, ogc_fid FROM  ne_10m_ocean_gridded_edited where geom && !BBOX! "
+
+	[[providers.layers]]
+	name = "ne_10m_lakes"
+	geometry_fieldname = "geom"
+	id_fieldname = "ogc_fid"
+	sql = "SELECT ST_AsBinary(geom) AS geom, ogc_fid, min_zoom FROM ne_10m_lakes WHERE min_zoom <= !ZOOM! AND geom && !BBOX!"
+
+	#ne boundaries
+	[[providers.layers]]
+	name = "ne_110m_admin_0_boundary_lines_land"
+	geometry_fieldname = "geom"
+	id_fieldname = "ogc_fid"
+	sql = "SELECT ST_AsBinary(geom) AS geom, ogc_fid, min_zoom FROM ne_110m_admin_0_boundary_lines_land WHERE min_zoom <= !ZOOM! AND geom && !BBOX!"
+
+	[[providers.layers]]
+	name = "ne_50m_admin_0_boundary_lines_land"
+	geometry_fieldname = "geom"
+	id_fieldname = "ogc_fid"
+	sql = "SELECT ST_AsBinary(geom) AS geom, ogc_fid, min_zoom FROM ne_50m_admin_0_boundary_lines_land WHERE min_zoom <= !ZOOM! AND geom && !BBOX!"
+
+	[[providers.layers]]
+	name = "ne_10m_admin_0_boundary_lines_land"
+	geometry_fieldname = "geom"
+	id_fieldname = "ogc_fid"
+	sql = "SELECT ST_AsBinary(geom) AS geom, ogc_fid, min_zoom FROM ne_10m_admin_0_boundary_lines_land WHERE min_zoom <= !ZOOM! AND geom && !BBOX!"
+
+  [[providers.layers]]
+	name = "ne_50m_admin_1_states_provinces_lines"
+	geometry_fieldname = "geom"
+	id_fieldname = "ogc_fid"
+	sql = "SELECT ST_AsBinary(geom) AS geom, ogc_fid, min_zoom FROM ne_50m_admin_1_states_provinces_lines WHERE  min_zoom <= !ZOOM! and geom && !BBOX!"
+
+	[[providers.layers]]
+	name = "ne_10m_admin_1_states_provinces_lines"
+	geometry_fieldname = "geom"
+	id_fieldname = "ogc_fid"
+	sql = "SELECT ST_AsBinary(geom) AS geom, ogc_fid, min_zoom, min_label FROM ne_10m_admin_1_states_provinces_lines WHERE  min_zoom <= !ZOOM! AND geom && !BBOX!"
+
+
+	#ne rivers
+	[[providers.layers]]
+	name = "ne_10m_rivers_lake_centerlines"
+	geometry_fieldname = "geom"
+	id_fieldname = "ogc_fid"
+	sql = "SELECT ST_AsBinary(geom) AS geom, ogc_fid, min_label, min_zoom FROM ne_10m_rivers_lake_centerlines WHERE min_zoom <= !ZOOM! AND geom && !BBOX!"
+
+	[[providers.layers]]
+	name = "ne_50m_rivers_lake_centerlines"
+	geometry_fieldname = "geom"
+	id_fieldname = "ogc_fid"
+	sql = "SELECT ST_AsBinary(geom) AS geom, ogc_fid, min_label, min_zoom FROM ne_50m_rivers_lake_centerlines WHERE min_zoom <= !ZOOM! AND geom && !BBOX!"
+
+
+
+[[maps]]
+name = "antique"
+center = [0.0,51.5,14.0]
+
+  [[maps.layers]]
+  provider_layer = "antique.water"
+  min_zoom = 12
+  max_zoom = 20
+
+  [[maps.layers]]
+  provider_layer = "antique.water_line"
+  min_zoom = 12
+  max_zoom = 20
+
+  [[maps.layers]]
+  provider_layer = "antique.minor_roads"
+  min_zoom = 12
+  max_zoom = 20
+
+  [[maps.layers]]
+  provider_layer = "antique.landuse"
+  min_zoom = 12
+  max_zoom = 20
+
+  [[maps.layers]]
+  provider_layer = "antique.roads"
+  min_zoom = 12
+  max_zoom = 20
+
+  [[maps.layers]]
+  provider_layer = "antique.buildings"
+  min_zoom = 12
+  max_zoom = 20
+
+  [[maps.layers]]
+  provider_layer = "antique.road_names"
+  min_zoom = 12
+  max_zoom = 20
+
+  [[maps.layers]]
+  provider_layer = "antique.places"
+  min_zoom = 12
+  max_zoom = 20
+
+
+  # Natural Earth data
+
+
+	# ocean & lakes
+
+	[[maps.layers]]
+	name = "ocean"
+	provider_layer = "antique.ne_50m_water"
+	dont_simplify = true
+	min_zoom = 0
+	max_zoom = 4
+
+	[[maps.layers]]
+	name = "ocean"
+	provider_layer = "antique.ne_10m_water"
+	dont_simplify = true
+	min_zoom = 5
+	max_zoom = 20
+
+	[[maps.layers]]
+	name = "lakes"
+	provider_layer = "antique.ne_10m_lakes"
+	min_zoom = 5
+	max_zoom = 11
+
+
+# borders
+	[[maps.layers]]
+	name = "country_lines"
+	provider_layer = "antique.ne_110m_admin_0_boundary_lines_land"
+	min_zoom = 0
+	max_zoom = 2
+
+	[[maps.layers]]
+	name = "country_lines"
+	provider_layer = "antique.ne_50m_admin_0_boundary_lines_land"
+	min_zoom = 3
+	max_zoom = 4
+
+	[[maps.layers]]
+	name = "country_lines"
+	provider_layer = "antique.ne_10m_admin_0_boundary_lines_land"
+	min_zoom = 5
+	max_zoom = 12
+
+	[[maps.layers]]
+	name = "state_lines"
+	provider_layer = "antique.ne_50m_admin_1_states_provinces_lines"
+	min_zoom = 2
+	max_zoom = 4
+
+	[[maps.layers]]
+	name = "state_lines"
+	provider_layer = "antique.ne_10m_admin_1_states_provinces_lines"
+	min_zoom = 5
+	max_zoom = 10
+
+# global rivers 2-12 
+	[[maps.layers]]
+	name = "global_rivers"
+	provider_layer = "antique.ne_50m_rivers_lake_centerlines"
+	min_zoom = 2
+	max_zoom = 4
+
+	[[maps.layers]]
+	name = "global_rivers"
+	provider_layer = "antique.ne_10m_rivers_lake_centerlines"
+	min_zoom = 5
+	max_zoom = 12

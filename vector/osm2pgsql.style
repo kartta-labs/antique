@@ -153,7 +153,11 @@ node,way   z_order      int4         linear # This is calculated during import
 way        way_area     real         linear # This is calculated during import
 node,way   start_date   text         linear
 node,way   end_date     text         linear
+node,way   start_date_int   text         linear
+node,way   end_date_int     text         linear
 node,way   building:levels   text         linear
+
+
 
 # Area tags
 # We don't make columns for these tags, but objects with them are areas.

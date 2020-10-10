@@ -42,51 +42,51 @@ srid = 3857                  # The default srid for this provider. If not provid
   geometry_fieldname = "geom"
   geometry_type = "polygon"
   id_fieldname = "osm_id"
-  sql = "SELECT osm_id, name, start_date, end_date, start_date_int, end_date_int, water, waterway, ST_AsBinary(way) AS geom FROM planet_osm_polygon WHERE (water IN ('river','canal','lake','water') OR waterway IN ('riverbank','canal','lake','pond') OR \"natural\"='water') AND way && !BBOX!"
+  sql = "SELECT osm_id, name, start_date, end_date, water, waterway, ST_AsBinary(way) AS geom FROM planet_osm_polygon WHERE (water IN ('river','canal','lake','water') OR waterway IN ('riverbank','canal','lake','pond') OR \"natural\"='water') AND way && !BBOX!"
 
   [[providers.layers]]
   name = "water_line"
   geometry_fieldname = "geom"
   geometry_type = "linestring"
   id_fieldname = "osm_id"
-  sql = "SELECT osm_id, name, start_date, end_date, start_date_int, end_date_int, waterway, ST_AsBinary(way) AS geom FROM planet_osm_line WHERE waterway IN ('river','canal','stream') AND way && !BBOX!"
+  sql = "SELECT osm_id, name, start_date, end_date, waterway, ST_AsBinary(way) AS geom FROM planet_osm_line WHERE waterway IN ('river','canal','stream') AND way && !BBOX!"
 
   [[providers.layers]]
   name = "landuse"
   geometry_fieldname = "geom"
   id_fieldname = "osm_id"
-  sql = "SELECT osm_id, name, start_date, end_date, start_date_int, end_date_int, landuse, leisure, ST_AsBinary(way) AS geom, name, COALESCE(landuse,leisure) AS type FROM planet_osm_polygon WHERE (landuse IS NOT NULL OR leisure IS NOT NULL) AND way && !BBOX!"
+  sql = "SELECT osm_id, name, start_date, end_date, landuse, leisure, ST_AsBinary(way) AS geom, name, COALESCE(landuse,leisure) AS type FROM planet_osm_polygon WHERE (landuse IS NOT NULL OR leisure IS NOT NULL) AND way && !BBOX!"
 
   [[providers.layers]]
   name = "minor_roads"
   geometry_fieldname = "geom"
   id_fieldname = "osm_id"
-  sql = "SELECT osm_id, start_date, end_date, start_date_int, end_date_int, highway, ST_AsBinary(way) AS geom, UPPER(name) AS name, highway AS type FROM planet_osm_line WHERE highway IN ('footway','service') AND way && !BBOX!"
+  sql = "SELECT osm_id, start_date, end_date, highway, ST_AsBinary(way) AS geom, UPPER(name) AS name, highway AS type FROM planet_osm_line WHERE highway IN ('footway','service') AND way && !BBOX!"
 
   [[providers.layers]]
   name = "roads"
   geometry_fieldname = "geom"
   id_fieldname = "osm_id"
-  sql = "SELECT osm_id, start_date, end_date, start_date_int, end_date_int, highway, ST_AsBinary(way) AS geom, UPPER(name) AS name, highway AS type FROM planet_osm_line WHERE highway IS NOT NULL AND highway NOT IN ('footway','service') AND way && !BBOX!"
+  sql = "SELECT osm_id, start_date, end_date, highway, ST_AsBinary(way) AS geom, UPPER(name) AS name, highway AS type FROM planet_osm_line WHERE highway IS NOT NULL AND highway NOT IN ('footway','service') AND way && !BBOX!"
 
   [[providers.layers]]
   name = "buildings"
   geometry_fieldname = "geom"
   id_fieldname = "osm_id"
-  sql = "SELECT osm_id, start_date, end_date, start_date_int, end_date_int, amenity, tourism, building, \"building:levels\",  tags->'addr:street' AS street, \"addr:housename\" as housename, \"addr:housenumber\" as housenumber,  ST_AsBinary(way) AS geom, name, COALESCE(amenity,tourism,building) AS type, '' AS subtype FROM planet_osm_polygon WHERE building IS NOT NULL AND way && !BBOX!"
+  sql = "SELECT osm_id, start_date, end_date, amenity, tourism, building, \"building:levels\",  tags->'addr:street' AS street, \"addr:housename\" as housename, \"addr:housenumber\" as housenumber,  ST_AsBinary(way) AS geom, name, COALESCE(amenity,tourism,building) AS type, '' AS subtype FROM planet_osm_polygon WHERE building IS NOT NULL AND way && !BBOX!"
   # note that we should have a subtype here
 
   [[providers.layers]]
   name = "road_names"
   geometry_fieldname = "geom"
   id_fieldname = "osm_id"
-  sql = "SELECT osm_id, start_date, end_date, start_date_int, end_date_int, highway, ST_AsBinary(way) AS geom, UPPER(name) AS name FROM planet_osm_line WHERE highway IS NOT NULL AND name IS NOT NULL AND way && !BBOX!"
+  sql = "SELECT osm_id, start_date, end_date, highway, ST_AsBinary(way) AS geom, UPPER(name) AS name FROM planet_osm_line WHERE highway IS NOT NULL AND name IS NOT NULL AND way && !BBOX!"
 
   [[providers.layers]]
   name = "places"
   geometry_fieldname = "geom"
   id_fieldname = "osm_id"
-  sql = "SELECT osm_id, start_date, end_date, start_date_int, end_date_int, place, ST_AsBinary(way) AS geom, UPPER(name) AS name, place AS type FROM planet_osm_point WHERE place IS NOT NULL AND name IS NOT NULL AND way && !BBOX!"
+  sql = "SELECT osm_id, start_date, end_date, place, ST_AsBinary(way) AS geom, UPPER(name) AS name, place AS type FROM planet_osm_point WHERE place IS NOT NULL AND name IS NOT NULL AND way && !BBOX!"
 
 
 	#osm land
@@ -94,13 +94,13 @@ srid = 3857                  # The default srid for this provider. If not provid
 	name = "osm_land"
 	geometry_fieldname = "geom"
 	id_fieldname = "ogc_fid"
-	sql = "SELECT ST_AsBinary(geom) AS geom, ogc_fid,  osm_id, start_date, end_date, start_date_int, end_date_int FROM  land_polygons_sub WHERE geom && !BBOX!"
+	sql = "SELECT ST_AsBinary(geom) AS geom, ogc_fid,  osm_id, start_date, end_date FROM  land_polygons_sub WHERE geom && !BBOX!"
 
 	[[providers.layers]]
 	name = "simplified_osm_land"
 	geometry_fieldname = "geom"
 	id_fieldname = "ogc_fid"
-	sql = "SELECT ST_AsBinary(geom) AS geom, ogc_fid,  osm_id, start_date, end_date, start_date_int, end_date_int FROM  simplified_land_polygons_sub WHERE geom && !BBOX!"
+	sql = "SELECT ST_AsBinary(geom) AS geom, ogc_fid,  osm_id, start_date, end_date FROM  simplified_land_polygons_sub WHERE geom && !BBOX!"
 
 
 	#ne land

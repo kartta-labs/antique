@@ -158,6 +158,12 @@ srid = 3857             # The default srid for this provider. If not provided it
 	sql = "SELECT ST_AsBinary(geom) AS geom, ogc_fid, min_label, min_zoom FROM ne_50m_rivers_lake_centerlines WHERE min_zoom <= !ZOOM! AND geom && !BBOX!"
 
 
+	[[providers.layers]]
+	name = "ne_10m_urban_areas"
+	geometry_fieldname = "geom"
+	id_fieldname = "ogc_fid"
+	sql = "SELECT ST_AsBinary(geom) AS geom, ogc_fid, min_zoom FROM ne_10m_urban_areas WHERE min_zoom <= !ZOOM! AND geom && !BBOX!"
+
 
 [[maps]]
 name = "antique"
@@ -187,7 +193,7 @@ attribution = "Coastlines © OpenStreetMap contributors"
 
   [[maps.layers]]
   provider_layer = "antique.roads"
-  min_zoom = 12
+  min_zoom = 10
   max_zoom = 20
 
   [[maps.layers]]
@@ -281,3 +287,9 @@ attribution = "Coastlines © OpenStreetMap contributors"
 	provider_layer = "antique.ne_10m_rivers_lake_centerlines"
 	min_zoom = 5
 	max_zoom = 12
+
+	[[maps.layers]]
+	name = "urban_areas"
+	provider_layer = "antique.ne_10m_urban_areas"
+	min_zoom = 2
+	max_zoom = 9

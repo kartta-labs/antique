@@ -23,7 +23,8 @@ port = ":8088"
 [cache]
 type="redis"
 address="${REDIS_ADDRESS}" # e.g. ip:host 
-ttl=86400  #1 day expiry antique
+#ttl=86400  #1 day expiry antique
+ttl=5  #short cache for debugging
 max_zoom=21
 
 # register data providers
@@ -167,7 +168,7 @@ srid = 3857                  # The default srid for this provider. If not provid
 [[maps]]
 name = "antique"
 center = [0.0,51.5,14.0]
-attribution = "Coastlines © OpenStreetMap contributors"
+attribution = "${ANTIQUE_ATTRIBUTION}"
 
   [[maps.layers]]
 	name = "water"

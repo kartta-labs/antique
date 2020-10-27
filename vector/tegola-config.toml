@@ -71,6 +71,12 @@ srid = 3857                  # The default srid for this provider. If not provid
   sql = "SELECT osm_id, start_date, end_date, highway, ST_AsBinary(way) AS geom, UPPER(name) AS name, highway AS type FROM planet_osm_line WHERE highway IS NOT NULL AND highway NOT IN ('footway','service') AND way && !BBOX!"
 
   [[providers.layers]]
+  name = "major_roads"
+  geometry_fieldname = "geom"
+  id_fieldname = "osm_id"
+  sql = "SELECT osm_id, start_date, end_date, highway, ST_AsBinary(way) AS geom, UPPER(name) AS name, highway AS type FROM planet_osm_line WHERE highway IS NOT NULL AND highway IN ('motorway', 'primary', 'trunk') AND way && !BBOX!"
+
+  [[providers.layers]]
   name = "buildings"
   geometry_fieldname = "geom"
   id_fieldname = "osm_id"
@@ -195,6 +201,11 @@ attribution = "${ANTIQUE_ATTRIBUTION}"
   provider_layer = "antique.roads"
   min_zoom = 13
   max_zoom = 20
+
+  [[maps.layers]]
+  provider_layer = "antique.major_roads"
+  min_zoom = 7
+  max_zoom = 12
 
   [[maps.layers]]
   provider_layer = "antique.buildings"

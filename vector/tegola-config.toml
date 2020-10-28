@@ -204,7 +204,7 @@ attribution = "${ANTIQUE_ATTRIBUTION}"
 
   [[maps.layers]]
   provider_layer = "antique.major_roads"
-  min_zoom = 7
+  min_zoom = 8
   max_zoom = 12
 
   [[maps.layers]]

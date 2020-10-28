@@ -62,32 +62,31 @@ srid = 3857                  # The default srid for this provider. If not provid
   name = "minor_roads"
   geometry_fieldname = "geom"
   id_fieldname = "osm_id"
-  sql = "SELECT osm_id, start_date, end_date, highway, ST_AsBinary(way) AS geom, UPPER(name) AS name, highway AS type FROM planet_osm_line WHERE highway IN ('footway','service') AND way && !BBOX!"
+  sql = "SELECT osm_id, start_date, end_date, highway, ST_AsBinary(way) AS geom, UPPER(name) AS name, highway AS type FROM planet_osm_line WHERE highway IN ('footway','service', 'steps', 'pedestrian') AND way && !BBOX!"
 
   [[providers.layers]]
   name = "roads"
   geometry_fieldname = "geom"
   id_fieldname = "osm_id"
-  sql = "SELECT osm_id, start_date, end_date, highway, ST_AsBinary(way) AS geom, UPPER(name) AS name, highway AS type FROM planet_osm_line WHERE highway IS NOT NULL AND highway NOT IN ('footway','service') AND way && !BBOX!"
+  sql = "SELECT osm_id, start_date, end_date, highway, ST_AsBinary(way) AS geom, UPPER(name) AS name, highway AS type FROM planet_osm_line WHERE highway IS NOT NULL AND highway NOT IN ('footway','service','steps', 'pedestrian') AND tunnel IS NULL AND way && !BBOX!"
 
   [[providers.layers]]
   name = "major_roads"
   geometry_fieldname = "geom"
   id_fieldname = "osm_id"
-  sql = "SELECT osm_id, start_date, end_date, highway, ST_AsBinary(way) AS geom, UPPER(name) AS name, highway AS type FROM planet_osm_line WHERE highway IS NOT NULL AND highway IN ('motorway', 'primary', 'trunk') AND way && !BBOX!"
+  sql = "SELECT osm_id, start_date, end_date, highway, ST_AsBinary(way) AS geom, UPPER(name) AS name, highway AS type FROM planet_osm_line WHERE highway IS NOT NULL AND highway IN ('motorway', 'primary', 'trunk')  AND tunnel IS NULL AND way && !BBOX!"
 
   [[providers.layers]]
   name = "buildings"
   geometry_fieldname = "geom"
   id_fieldname = "osm_id"
-  sql = "SELECT osm_id, start_date, end_date, amenity, tourism, building, \"building:levels\",  tags->'addr:street' AS street, \"addr:housename\" as housename, \"addr:housenumber\" as housenumber,  ST_AsBinary(way) AS geom, name, COALESCE(amenity,tourism,building) AS type, '' AS subtype FROM planet_osm_polygon WHERE building IS NOT NULL AND way && !BBOX!"
-  # note that we should have a subtype here
+  sql = "SELECT osm_id, start_date, end_date, ST_AsBinary(way) AS geom, name, COALESCE(amenity,tourism,building) AS type FROM planet_osm_polygon WHERE building IS NOT NULL AND way && !BBOX!"
 
   [[providers.layers]]
   name = "road_names"
   geometry_fieldname = "geom"
   id_fieldname = "osm_id"
-  sql = "SELECT osm_id, start_date, end_date, highway, ST_AsBinary(way) AS geom, UPPER(name) AS name FROM planet_osm_line WHERE highway IS NOT NULL AND name IS NOT NULL AND way && !BBOX!"
+  sql = "SELECT osm_id, start_date, end_date, highway, ST_AsBinary(way) AS geom, UPPER(name) AS name FROM planet_osm_line WHERE highway IS NOT NULL AND highway IN ('motorway', 'primary', 'trunk', 'secondary', 'residential') AND tunnel IS NULL AND name IS NOT NULL AND way && !BBOX!"
 
   [[providers.layers]]
   name = "places"
